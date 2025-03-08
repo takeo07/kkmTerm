@@ -1,14 +1,36 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
-
+import { Menu } from "@tauri-apps/api/menu";
+import { message } from "@tauri-apps/plugin-dialog";
 const greetMsg = ref("");
 const name = ref("");
-
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
   greetMsg.value = await invoke("greet", { name: name.value });
 }
+
+async function buildMenu() {
+  const menu = await Menu.new({
+    items: [
+      {id:"quit",
+       text:"Quit",
+       action:() => {
+        console.log("Quit Event");
+        message("Hello", {title: "TITLE", kind: "error"});
+       }
+      }
+    ]
+  });
+  menu.setAsAppMenu().then((res) => {
+    console.log("menu set up", res);
+  });
+};
+
+onMounted(() => {
+  buildMenu();
+});
+
 </script>
 
 <template>
