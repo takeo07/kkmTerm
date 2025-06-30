@@ -1,4 +1,31 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
+import { Terminal } from '@xterm/xterm';
+import '@xterm/xterm/css/xterm.css';
+import { spawn } from 'tauri-pty';
+import 'vuetify/styles';
+
+onMounted(() => {
+  const terminal = new Terminal({
+    cols: 80,
+    rows: 30,
+    theme: {
+      background: '#1e1e1e',
+      foreground: '#ffffff',
+    },
+  });
+  terminal.open(document.getElementById("terminal")!);
+  const pty =spawn("bash", [], {
+      cols: 80,
+      rows: 30,
+  });
+  pty.onData((data) => {
+    terminal?.write(data);
+  });
+  terminal.onData((data) => {
+    pty.write(data);
+  });
+});
 
 </script>
 
@@ -20,7 +47,7 @@
 
     <v-main>
       <v-container>
-        Main Contents
+        <div id="terminal"></div>
       </v-container>
     </v-main>
 
